@@ -66,18 +66,18 @@ const Navbar = () => {
                                         className="flex items-center gap-2"
                                     >
                                         <span className="text-lg font-semibold tracking-tighter">
-                                            Shadcnblocks.com
+                                            Predict
                                         </span>
                                     </a>
                                 </SheetTitle>
                             </SheetHeader>
 
                             <div className="flex flex-col p-4 gap-6">
-                                <a href="#" className="font-medium">
+                                <Link href="/" className="font-medium">
                                     About
-                                </a>
+                                </Link>
                                 <div className="mt-6 flex flex-col gap-4">
-                                    <Button>Start for free</Button>
+                                    <ModeToggle />
                                 </div>
                             </div>
                         </SheetContent>
