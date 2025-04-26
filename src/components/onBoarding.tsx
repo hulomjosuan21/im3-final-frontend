@@ -1,11 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { Step1, Step2, Step3 } from "./onboard-steps";
+import { initialInputs } from "@/context/input";
+import { useAtomValue } from "jotai";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
+import { SwipeStep } from "./motion-div";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Terminal } from "lucide-react";
+import { ScrollArea } from "./ui/scroll-area";
 
-type Step = {
+export type Step = {
   id: string;
   Component: React.FC;
   condition?: () => boolean;
@@ -13,13 +27,40 @@ type Step = {
 };
 
 export default function Onboarding() {
+  const [dialogOpen, setOpen] = useState(false);
+  const inputs = useAtomValue(initialInputs);
+
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [stepIndex, setStepIndex] = useState(0);
+  const handleDone = () => {
+    setOpen(true);
+  };
+
+  const [visibleEntries, setVisibleEntries] = useState<
+    { key: string; value: string | number }[]
+  >([]);
+
+  useEffect(() => {
+    if (dialogOpen) {
+      const entries = Object.entries(inputs);
+      setVisibleEntries([]);
+
+      entries.forEach(([key, value], index) => {
+        setTimeout(() => {
+          setVisibleEntries((prev) => [...prev, { key, value }]);
+        }, index * 200);
+      });
+    }
+  }, [dialogOpen, inputs]);
 
   const steps: Step[] = [
     { id: "step1", Component: Step1 },
     { id: "step2", Component: Step2 },
-    { id: "step3", Component: Step3 },
+    {
+      id: "step3",
+      Component: Step3,
+      callback: handleDone,
+    },
   ];
 
   const visibleSteps = steps.filter((step) => step.condition?.() ?? true);
@@ -43,28 +84,56 @@ export default function Onboarding() {
     }
   };
 
-  const handleDone = () => {
-    console.log("Done");
-  };
-
   return (
     <div className="relative w-screen h-screen overflow-hidden">
+      <AlertDialog open={dialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle />
+            <AlertDialogDescription />
+          </AlertDialogHeader>
+
+          <ScrollArea className="h-[400px] space-y-2 pr-4">
+            {visibleEntries.map(({ key, value }, i) => (
+              <div key={i} className="text-xs">
+                <span>{key.replaceAll("_", " ")}</span>: {String(value)} ✅
+              </div>
+            ))}
+
+            {visibleEntries.length === Object.keys(inputs).length && (
+              <div className="py-4">
+                <Alert>
+                  <Terminal className="h-4 w-4" />
+                  <AlertTitle>Heads up!</AlertTitle>
+                  <AlertDescription>
+                    You can add components to your app using the CLI.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+          </ScrollArea>
+
+          <AlertDialogFooter>
+            <Button onClick={() => setOpen(false)}>Okay</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AnimatePresence mode="sync">
-        <motion.div
-          key={stepIndex}
-          initial={{ x: direction === "forward" ? 100 : -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: direction === "forward" ? -100 : 100, opacity: 0 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="absolute top-0 left-0 w-full h-full"
+        <SwipeStep
+          stepIndex={stepIndex}
+          visibleSteps={visibleSteps}
+          direction={direction}
+          handleNext={handleNext}
+          handleBack={handleBack}
         >
           <CurrentStep />
-        </motion.div>
+        </SwipeStep>
       </AnimatePresence>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-between max-w-2xl mx-auto w-full px-8">
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           onClick={handleBack}
           className={stepIndex === 0 ? "invisible" : ""}
@@ -76,8 +145,9 @@ export default function Onboarding() {
           {visibleSteps.map((_, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === stepIndex ? "bg-primary scale-110" : "bg-foreground"
-                }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === stepIndex ? "bg-primary scale-110" : "bg-foreground"
+              }`}
             />
           ))}
         </div>
@@ -85,10 +155,10 @@ export default function Onboarding() {
         <Button
           size="sm"
           onClick={
-            stepIndex != visibleSteps.length - 1 ? handleNext : handleDone
+            stepIndex !== visibleSteps.length - 1 ? handleNext : handleDone
           }
         >
-          {stepIndex === visibleSteps.length - 1 ? "Done" : "Next"}
+          {stepIndex === visibleSteps.length - 1 ? "Predict" : "Next"}
         </Button>
       </div>
     </div>
