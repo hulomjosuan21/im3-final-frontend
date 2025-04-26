@@ -57,7 +57,7 @@ const Step1: React.FC = () => {
 
   return (
     <div
-      className="flex justify-center items-center flex-col pt-14 pb-18 overflow-y-auto"
+      className="flex justify-center items-center flex-col py-18 overflow-y-auto"
       style={{ height: "calc(var(--vh, 1vh) * 100)" }}
     >
       {View}
