@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { Step1, Step2, Step3 } from "./onboard-steps";
-import { initialInputs } from "@/context/input";
+import { initialInputs, isAllInputsFilled } from "@/context/input";
 import { useAtomValue } from "jotai";
 import {
   AlertDialog,
@@ -19,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { CircleCheck } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { getData } from "@/actions/predict-actions";
+import { toast } from "sonner";
 
 export type Step = {
   id: string;
@@ -35,7 +36,6 @@ export default function Onboarding() {
   const [visibleEntries, setVisibleEntries] = useState<
     { key: string; value: string | number }[]
   >([]);
-  const [showResult, setShowResult] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["predictResult"],
@@ -44,10 +44,24 @@ export default function Onboarding() {
   });
 
   const handleDone = async () => {
-    setOpen(true);
-    await refetch();
-    setShowResult(true);
+    try {
+      if (isAllInputsFilled(inputs)) {
+        setOpen(true);
+        await refetch();
+      } else {
+        toast.error(
+          "Please fill in all required fields correctly before continuing!"
+        );
+        return;
+      }
+    } catch {
+      toast.error(
+        "An error occurred while fetching the prediction result. Please try again later."
+      );
+    }
   };
+
+  const [showPrediction, setShowPrediction] = useState(false);
 
   useEffect(() => {
     if (dialogOpen) {
@@ -59,6 +73,13 @@ export default function Onboarding() {
           setVisibleEntries((prev) => [...prev, { key, value }]);
         }, index * 150);
       });
+
+      const totalDelay = entries.length * 150;
+      setTimeout(() => {
+        setShowPrediction(true);
+      }, totalDelay + 200);
+    } else {
+      setShowPrediction(false);
     }
   }, [dialogOpen, inputs]);
 
@@ -105,20 +126,29 @@ export default function Onboarding() {
               Here&apos;s your filled info and prediction result.
             </AlertDialogDescription>
           </AlertDialogHeader>
-
           <ScrollArea className="h-[400px] space-y-2 pr-4">
             {visibleEntries.map(({ key, value }, i) => (
               <div
                 key={i}
-                className="text-xs flex justify-between items-center"
+                className="text-xs flex justify-between items-center animate-fade-in-up"
+                style={{
+                  animationDelay: `${i * 0.15}s`,
+                  animationFillMode: "both",
+                }}
               >
                 <span className="capitalize">{key.replaceAll("_", " ")}:</span>
                 <span className="font-medium">{String(value)}</span>
               </div>
             ))}
 
-            {showResult && (
-              <div className="mt-4">
+            {showPrediction && (
+              <div
+                className="mt-6 animate-fade-in-up"
+                style={{
+                  animationDelay: `${visibleEntries.length * 0.1}s`,
+                  animationFillMode: "both",
+                }}
+              >
                 {isLoading && (
                   <div className="text-sm text-muted-foreground">
                     Predicting... please wait 🔄
@@ -136,12 +166,12 @@ export default function Onboarding() {
                     <AlertDescription className="text-sm space-y-2">
                       <div>{data.payload}</div>
 
-                      <div className="mt-2 space-y-1">
+                      <div className="space-y-1">
                         {data.prediction?.length > 0 &&
                           Object.entries(data.prediction[0]).map(
                             ([key, value]) => (
                               <div key={key} className="flex justify-between">
-                                <span>{key}</span>
+                                <span>{key}: </span>
                                 <span className="font-semibold">
                                   {String(value)}%
                                 </span>
@@ -162,7 +192,6 @@ export default function Onboarding() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Steps Navigation */}
       <AnimatePresence mode="sync">
         <SwipeStep
           stepIndex={stepIndex}
@@ -175,7 +204,6 @@ export default function Onboarding() {
         </SwipeStep>
       </AnimatePresence>
 
-      {/* Stepper Dots and Navigation Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-between max-w-2xl mx-auto w-full px-8">
         <Button
           variant="secondary"
@@ -203,7 +231,11 @@ export default function Onboarding() {
             stepIndex !== visibleSteps.length - 1 ? handleNext : handleDone
           }
         >
-          {stepIndex === visibleSteps.length - 1 ? "Predict" : "Next"}
+          {stepIndex === 0
+            ? "Start"
+            : stepIndex === visibleSteps.length - 1
+            ? "Predict"
+            : "Next"}
         </Button>
       </div>
     </div>

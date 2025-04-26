@@ -41,3 +41,27 @@ export const initialInputs = atom<Inputs>({
   Work_Life_Balance: 0,
   Job_Offers: 0,
 });
+
+export const isAllInputsFilled = (inputs: Inputs) => {
+  for (const key in inputs) {
+    const value = inputs[key as keyof Inputs];
+
+    if (typeof value === "string" && value.trim() === "") {
+      return false;
+    }
+
+    if (key === "High_School_GPA" && value === 0) {
+      return false;
+    }
+
+    if (key === "Starting_Salary" && value === 0) {
+      return false;
+    }
+
+    if (key === "Age" && Number(value) <= 12) {
+      return false;
+    }
+  }
+
+  return true;
+};

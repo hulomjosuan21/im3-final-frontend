@@ -17,7 +17,7 @@ import { initialInputs, Inputs } from "@/context/input";
 import { useAtom } from "jotai";
 
 const Step1: React.FC = () => {
-  const [inputs, setInputs] = useAtom(initialInputs); // Accessing the atom
+  const [inputs, setInputs] = useAtom(initialInputs);
 
   const style = {
     height: 300,
@@ -56,7 +56,10 @@ const Step1: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex justify-center items-center flex-col pt-2 pb-18 overflow-y-auto">
+    <div
+      className="flex justify-center items-center flex-col pt-2 pb-18 overflow-y-auto"
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
       {View}
       <div className="pb-12 px-4">
         <TypingAnimation duration={25} className="text-sm font-lg font-normal">
@@ -103,7 +106,10 @@ const Step2: React.FC = () => {
   const { View } = useLottie(options, style);
 
   return (
-    <div className="h-screen flex items-center justify-start flex-col py-18 overflow-y-auto">
+    <div
+      className="flex items-center justify-start flex-col py-18 overflow-y-auto"
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
       <div className="">{View}</div>
 
       <div className="pb-12">
@@ -116,7 +122,7 @@ const Step2: React.FC = () => {
         <div className="flex flex-col space-y-1.5 w-full">
           <Label>Select Gender</Label>
           <Select
-            value={inputs.Gender}
+            defaultValue={inputs.Gender}
             onValueChange={(value) =>
               handleChange("Gender", value as Inputs["Gender"])
             }
@@ -133,7 +139,7 @@ const Step2: React.FC = () => {
         <div className="flex flex-col space-y-1.5">
           <Label>Current Job Level</Label>
           <Select
-            value={inputs.Current_Job_Level}
+            defaultValue={inputs.Current_Job_Level}
             onValueChange={(value) =>
               handleChange(
                 "Current_Job_Level",
@@ -154,8 +160,7 @@ const Step2: React.FC = () => {
           <Label>Age</Label>
           <Input
             type="number"
-            value={inputs.Age ?? ""}
-            placeholder="How old are you?"
+            defaultValue={inputs.Age ?? ""}
             onChange={(e) => handleChange("Age", Number(e.target.value))}
           />
         </div>
@@ -163,7 +168,7 @@ const Step2: React.FC = () => {
           <Label>Internships Completed</Label>
           <Input
             type="number"
-            value={inputs.Internships_Completed ?? ""}
+            defaultValue={inputs.Internships_Completed ?? ""}
             onChange={(e) =>
               handleChange("Internships_Completed", Number(e.target.value))
             }
@@ -173,7 +178,7 @@ const Step2: React.FC = () => {
           <Label>Projects Completed</Label>
           <Input
             type="number"
-            value={inputs.Projects_Completed ?? ""}
+            defaultValue={inputs.Projects_Completed ?? ""}
             onChange={(e) =>
               handleChange("Projects_Completed", Number(e.target.value))
             }
@@ -183,7 +188,7 @@ const Step2: React.FC = () => {
           <Label>Number of Certifications</Label>
           <Input
             type="number"
-            value={inputs.Certifications ?? ""}
+            defaultValue={inputs.Certifications ?? ""}
             onChange={(e) =>
               handleChange("Certifications", Number(e.target.value))
             }
@@ -193,7 +198,7 @@ const Step2: React.FC = () => {
           <Label>Starting Salary</Label>
           <Input
             type="number"
-            value={inputs.Starting_Salary ?? ""}
+            defaultValue={inputs.Starting_Salary ?? ""}
             onChange={(e) =>
               handleChange("Starting_Salary", Number(e.target.value))
             }
@@ -203,7 +208,7 @@ const Step2: React.FC = () => {
           <Label>Years to Promote</Label>
           <Input
             type="number"
-            value={inputs.Years_to_Promotion ?? ""}
+            defaultValue={inputs.Years_to_Promotion ?? ""}
             onChange={(e) =>
               handleChange("Years_to_Promotion", Number(e.target.value))
             }
@@ -213,7 +218,7 @@ const Step2: React.FC = () => {
           <Label>Career Satisfaction</Label>
           <Input
             type="number"
-            value={inputs.Career_Satisfaction ?? ""}
+            defaultValue={inputs.Career_Satisfaction ?? ""}
             onChange={(e) =>
               handleChange("Career_Satisfaction", Number(e.target.value))
             }
@@ -246,7 +251,10 @@ const Step3: React.FC = () => {
   const { View } = useLottie(options, style);
 
   return (
-    <div className="flex items-center justify-start flex-col pt-12 pb-18 h-screen overflow-y-auto">
+    <div
+      className="flex items-center justify-start flex-col pt-12 pb-18 overflow-y-auto"
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
       <div className="mt-4">{View}</div>
 
       <div className="py-12 px-4">
@@ -264,7 +272,7 @@ const Step3: React.FC = () => {
           <Label>High School GPA</Label>
           <Input
             type="number"
-            value={inputs.High_School_GPA ?? ""}
+            defaultValue={inputs.High_School_GPA ?? ""}
             onChange={(e) =>
               handleChange("High_School_GPA", Number(e.target.value))
             }
@@ -275,7 +283,7 @@ const Step3: React.FC = () => {
           <Label>SAT Score</Label>
           <Input
             type="number"
-            value={inputs.SAT_Score ?? ""}
+            defaultValue={inputs.SAT_Score ?? ""}
             onChange={(e) => handleChange("SAT_Score", Number(e.target.value))}
           />
           <span className="text-muted-foreground text-sm">
@@ -287,7 +295,7 @@ const Step3: React.FC = () => {
           <Label>University Ranking</Label>
           <Input
             type="number"
-            value={inputs.University_Ranking ?? ""}
+            defaultValue={inputs.University_Ranking ?? ""}
             onChange={(e) =>
               handleChange("University_Ranking", Number(e.target.value))
             }
@@ -298,7 +306,7 @@ const Step3: React.FC = () => {
           <Label>University GPA</Label>
           <Input
             type="number"
-            value={inputs.University_GPA ?? ""}
+            defaultValue={inputs.University_GPA ?? ""}
             onChange={(e) =>
               handleChange("University_GPA", Number(e.target.value))
             }
@@ -309,7 +317,7 @@ const Step3: React.FC = () => {
           <Label>Soft Skill Score</Label>
           <Input
             type="number"
-            value={inputs.Soft_Skills_Score ?? ""}
+            defaultValue={inputs.Soft_Skills_Score ?? ""}
             onChange={(e) =>
               handleChange("Soft_Skills_Score", Number(e.target.value))
             }
@@ -320,7 +328,7 @@ const Step3: React.FC = () => {
           <Label>Networking Score</Label>
           <Input
             type="number"
-            value={inputs.Networking_Score ?? ""}
+            defaultValue={inputs.Networking_Score ?? ""}
             onChange={(e) =>
               handleChange("Networking_Score", Number(e.target.value))
             }
@@ -331,7 +339,7 @@ const Step3: React.FC = () => {
           <Label>Work Life Balance</Label>
           <Input
             type="number"
-            value={inputs.Work_Life_Balance ?? ""}
+            defaultValue={inputs.Work_Life_Balance ?? ""}
             onChange={(e) =>
               handleChange("Work_Life_Balance", Number(e.target.value))
             }
@@ -341,7 +349,7 @@ const Step3: React.FC = () => {
           <Label>Job Offers</Label>
           <Input
             type="number"
-            value={inputs.Job_Offers ?? ""}
+            defaultValue={inputs.Job_Offers ?? ""}
             onChange={(e) => handleChange("Job_Offers", Number(e.target.value))}
           />
         </div>
