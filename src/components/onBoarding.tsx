@@ -1,5 +1,5 @@
 "use client";
-
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
@@ -16,8 +16,9 @@ import {
 } from "./ui/alert-dialog";
 import { SwipeStep } from "./motion-div";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Terminal } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import { getData } from "@/actions/predict-actions";
 
 export type Step = {
   id: string;
@@ -27,18 +28,26 @@ export type Step = {
 };
 
 export default function Onboarding() {
-  const [dialogOpen, setOpen] = useState(false);
   const inputs = useAtomValue(initialInputs);
-
+  const [dialogOpen, setOpen] = useState(false);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [stepIndex, setStepIndex] = useState(0);
-  const handleDone = () => {
-    setOpen(true);
-  };
-
   const [visibleEntries, setVisibleEntries] = useState<
     { key: string; value: string | number }[]
   >([]);
+  const [showResult, setShowResult] = useState(false);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["predictResult"],
+    queryFn: () => getData(inputs),
+    enabled: false,
+  });
+
+  const handleDone = async () => {
+    setOpen(true);
+    await refetch();
+    setShowResult(true);
+  };
 
   useEffect(() => {
     if (dialogOpen) {
@@ -48,7 +57,7 @@ export default function Onboarding() {
       entries.forEach(([key, value], index) => {
         setTimeout(() => {
           setVisibleEntries((prev) => [...prev, { key, value }]);
-        }, index * 200);
+        }, index * 150);
       });
     }
   }, [dialogOpen, inputs]);
@@ -89,36 +98,71 @@ export default function Onboarding() {
       <AlertDialog open={dialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle />
-            <AlertDialogDescription />
+            <AlertDialogTitle className="text-lg">
+              Prediction Result
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Here&apos;s your filled info and prediction result.
+            </AlertDialogDescription>
           </AlertDialogHeader>
 
           <ScrollArea className="h-[400px] space-y-2 pr-4">
             {visibleEntries.map(({ key, value }, i) => (
-              <div key={i} className="text-xs">
-                <span>{key.replaceAll("_", " ")}</span>: {String(value)} ✅
+              <div
+                key={i}
+                className="text-xs flex justify-between items-center"
+              >
+                <span className="capitalize">{key.replaceAll("_", " ")}:</span>
+                <span className="font-medium">{String(value)}</span>
               </div>
             ))}
 
-            {visibleEntries.length === Object.keys(inputs).length && (
-              <div className="py-4">
-                <Alert>
-                  <Terminal className="h-4 w-4" />
-                  <AlertTitle>Heads up!</AlertTitle>
-                  <AlertDescription>
-                    You can add components to your app using the CLI.
-                  </AlertDescription>
-                </Alert>
+            {showResult && (
+              <div className="mt-4">
+                {isLoading && (
+                  <div className="text-sm text-muted-foreground">
+                    Predicting... please wait 🔄
+                  </div>
+                )}
+                {error && (
+                  <div className="text-sm text-red-500">
+                    Something went wrong. Please try again.
+                  </div>
+                )}
+                {data && (
+                  <Alert className="mt-4">
+                    <CircleCheck className="h-4 w-4" />
+                    <AlertTitle>Prediction result!</AlertTitle>
+                    <AlertDescription className="text-sm space-y-2">
+                      <div>{data.payload}</div>
+
+                      <div className="mt-2 space-y-1">
+                        {data.prediction?.length > 0 &&
+                          Object.entries(data.prediction[0]).map(
+                            ([key, value]) => (
+                              <div key={key} className="flex justify-between">
+                                <span>{key}</span>
+                                <span className="font-semibold">
+                                  {String(value)}%
+                                </span>
+                              </div>
+                            )
+                          )}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             )}
           </ScrollArea>
 
           <AlertDialogFooter>
-            <Button onClick={() => setOpen(false)}>Okay</Button>
+            <Button onClick={() => setOpen(false)}>Close</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Steps Navigation */}
       <AnimatePresence mode="sync">
         <SwipeStep
           stepIndex={stepIndex}
@@ -131,6 +175,7 @@ export default function Onboarding() {
         </SwipeStep>
       </AnimatePresence>
 
+      {/* Stepper Dots and Navigation Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-between max-w-2xl mx-auto w-full px-8">
         <Button
           variant="secondary"

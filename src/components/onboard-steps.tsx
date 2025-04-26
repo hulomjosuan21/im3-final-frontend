@@ -32,6 +32,7 @@ const Step1: React.FC = () => {
   const { View } = useLottie(options, style);
 
   const fields = [
+    "Arts",
     "Aerospace Engineering",
     "Agricultural Engineering",
     "Biomedical Engineering",

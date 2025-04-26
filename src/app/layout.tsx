@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
+import QueryProvider from "@/providers/query-provider";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -21,21 +22,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${montserrat.variable} antialiased`}
-      >
+      <body className={`${montserrat.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main>
-            {children}
-          </main>
+          <QueryProvider>
+            <Navbar />
+            <main>{children}</main>
+          </QueryProvider>
         </ThemeProvider>
       </body>
-    </html >
+    </html>
   );
 }
