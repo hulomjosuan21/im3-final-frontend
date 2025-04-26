@@ -231,11 +231,7 @@ export default function Onboarding() {
             stepIndex !== visibleSteps.length - 1 ? handleNext : handleDone
           }
         >
-          {stepIndex === 0
-            ? "Start"
-            : stepIndex === visibleSteps.length - 1
-            ? "Predict"
-            : "Next"}
+          {stepIndex === visibleSteps.length - 1 ? "Predict" : "Next"}
         </Button>
       </div>
     </div>
