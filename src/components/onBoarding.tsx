@@ -20,6 +20,7 @@ import { CircleCheck } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { getData } from "@/actions/predict-actions";
 import { toast } from "sonner";
+import { showPredictionNotification } from "./handle-notification";
 
 export type Step = {
   id: string;
@@ -47,7 +48,14 @@ export default function Onboarding() {
     try {
       isAllInputsFilled(inputs);
       setOpen(true);
-      await refetch();
+      const { data, error } = await refetch();
+      if (error) {
+        throw new Error("Failed to fetch prediction data.");
+      }
+
+      if (data) {
+        await showPredictionNotification(data);
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
