@@ -15,9 +15,11 @@ import {
 } from "./ui/select";
 import { initialInputs, Inputs } from "@/context/input";
 import { useAtom } from "jotai";
+import { useState } from "react";
 
 const Step1: React.FC = () => {
   const [inputs, setInputs] = useAtom(initialInputs);
+  const [otherField, setOtherField] = useState<string>("");
 
   const style = {
     height: 300,
@@ -33,25 +35,27 @@ const Step1: React.FC = () => {
 
   const fields = [
     "Arts",
-    "Aerospace Engineering",
-    "Agricultural Engineering",
-    "Biomedical Engineering",
-    "Civil Engineering",
-    "Water Resources Engineering",
-    "Mining Engineering",
-    "Ocean Engineering",
+    "Law",
     "Medicine",
-    "Neurology",
-    "Dermatology",
-    "Graphic Design",
-    "Fashion Design",
-    "Industrial Design",
+    "Engineering",
+    "Business",
+    "Computer Science",
+    "Mathematics",
   ];
 
   const handleFieldSelection = (field: string) => {
     setInputs((prev) => ({
       ...prev,
       Field_of_Study: field,
+    }));
+    setOtherField("");
+  };
+
+  const handleOtherFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOtherField(e.target.value);
+    setInputs((prev) => ({
+      ...prev,
+      Field_of_Study: e.target.value,
     }));
   };
 
@@ -79,6 +83,17 @@ const Step1: React.FC = () => {
             {field}
           </Badge>
         ))}
+      </div>
+      <div className="mt-4">
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label>Other</Label>
+          <Input
+            type="text"
+            placeholder="Other Field of Study"
+            defaultValue={otherField}
+            onChange={handleOtherFieldChange}
+          />
+        </div>
       </div>
     </div>
   );
@@ -133,6 +148,7 @@ const Step2: React.FC = () => {
             <SelectContent position="popper">
               <SelectItem value="Male">Male</SelectItem>
               <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -152,7 +168,9 @@ const Step2: React.FC = () => {
             </SelectTrigger>
             <SelectContent position="popper">
               <SelectItem value="Entry">Entry</SelectItem>
+              <SelectItem value="Mid">Mid</SelectItem>
               <SelectItem value="Senior">Senior</SelectItem>
+              <SelectItem value="Executive">Executive</SelectItem>
             </SelectContent>
           </Select>
         </div>

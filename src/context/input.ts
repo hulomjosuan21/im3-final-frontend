@@ -19,6 +19,7 @@ export type Inputs = {
   Networking_Score: number;
   Work_Life_Balance: number;
   Job_Offers: number;
+  [key: string]: string | number;
 };
 
 export const initialInputs = atom<Inputs>({
@@ -42,26 +43,30 @@ export const initialInputs = atom<Inputs>({
   Job_Offers: 0,
 });
 
-export const isAllInputsFilled = (inputs: Inputs) => {
+export function isAllInputsFilled(inputs: Inputs) {
   for (const key in inputs) {
     const value = inputs[key as keyof Inputs];
 
     if (typeof value === "string" && value.trim() === "") {
-      return false;
+      throw new Error(`${key.replaceAll("_", " ")} cannot be empty.`);
     }
 
-    if (key === "High_School_GPA" && value === 0) {
-      return false;
-    }
+    if (typeof value === "number") {
+      if (value < 0) {
+        throw new Error(`${key.replaceAll("_", " ")} cannot be negative.`);
+      }
 
-    if (key === "Starting_Salary" && value === 0) {
-      return false;
-    }
+      if (key === "High_School_GPA" && value === 0) {
+        throw new Error("High School GPA cannot be 0.");
+      }
 
-    if (key === "Age" && Number(value) <= 12) {
-      return false;
+      if (key === "Starting_Salary" && value === 0) {
+        throw new Error("Starting Salary cannot be 0.");
+      }
+
+      if (key === "Age" && value <= 12) {
+        throw new Error("Age must be greater than 12.");
+      }
     }
   }
-
-  return true;
-};
+}

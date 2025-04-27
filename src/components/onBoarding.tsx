@@ -45,19 +45,13 @@ export default function Onboarding() {
 
   const handleDone = async () => {
     try {
-      if (isAllInputsFilled(inputs)) {
-        setOpen(true);
-        await refetch();
-      } else {
-        toast.error(
-          "Please fill in all required fields correctly before continuing!"
-        );
-        return;
+      isAllInputsFilled(inputs);
+      setOpen(true);
+      await refetch();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
       }
-    } catch {
-      toast.error(
-        "An error occurred while fetching the prediction result. Please try again later."
-      );
     }
   };
 
